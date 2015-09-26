@@ -56,7 +56,7 @@ def remove_tuples(ob):
 def get_data(directory_path):
 	data_dict = dict()
 	files = glob.glob(directory_path+'*.txt')
-	for file_name in files:
+	for file_name in files[0:5000]:
 		fin = open(file_name, 'r').read()
 		title = file_name.split('/')[-1].split('.')[0]
 		data_dict[title] = fin
@@ -89,7 +89,7 @@ def main():
 	X_test = X_test_pos + X_test_neg
 	y_test = np.concatenate((y_test_pos,y_train_neg))
 
-	
+	##print(X_test[-1])
 	# vectorize data
 
 	text_train = clean_body(X_train)
@@ -125,7 +125,7 @@ def main():
 			X_test[i][j] = u
 
 
-	svc = SVC()
+	svc = SVC(probability=True)
 	model = svc.fit(X_train, y_train)
 	pred = model.predict(X_test)
 
@@ -144,6 +144,8 @@ def main():
 	pl.title('Confusion matrix of the classifier')
 	pl.colorbar()
 
+	print(model.predict_proba(X_test[-1]))
+	print(model.predict(X_test[-1]))
 
 
 
