@@ -8,7 +8,7 @@ import glob
 import numpy as np
 from nltk.corpus import stopwords
 import operator
-
+from sklearn.metrics import roc_curve, auc
 from time import time
 from sklearn.linear_model import LogisticRegression
 from sklearn.feature_extraction.text import CountVectorizer
@@ -21,8 +21,8 @@ from sklearn.metrics import confusion_matrix
 from sklearn.metrics import classification_report
 from sklearn.datasets.base import Bunch
 from sklearn.svm import SVC, LinearSVC
-
-
+from sklearn import linear_model
+import matplotlib.pyplot as plt
 
 def wordlist(body, remove_stopwords=False):
 	""" convert a document to a sequence of words, optionally removing stop words.  Returns a list of words."""
@@ -56,7 +56,7 @@ def remove_tuples(ob):
 def get_data(directory_path):
 	data_dict = dict()
 	files = glob.glob(directory_path+'*.txt')
-	for file_name in files[0:5000]:
+	for file_name in files:
 		fin = open(file_name, 'r').read()
 		title = file_name.split('/')[-1].split('.')[0]
 		data_dict[title] = fin
@@ -140,12 +140,22 @@ def main():
 	print(cm)
 
 	# Show confusion matrix
-	pl.matshow(cm)
-	pl.title('Confusion matrix of the classifier')
-	pl.colorbar()
+	#pl.matshow(cm)
+	#pl.title('Confusion matrix of the classifier')
+	#pl.colorbar()
 
-	print(model.predict_proba(X_test[-1]))
-	print(model.predict(X_test[-1]))
+	#print(model.predict_proba(X_test)[:,1])
+	#print(model.predict(X_test[-1]))
+	pred_probas = model.predict_proba(X_test)[:,1]
+	fpr,tpr,_ = roc_curve(y_test, pred_probas)
+	roc_auc = auc(fpr,tpr)
+	plt.plot(fpr,tpr,label='area = %.2f' %roc_auc)
+	plt.plot([0, 1], [0, 1], 'k--')
+	plt.xlim([0.0, 1.0])
+	plt.ylim([0.0, 1.05])
+	plt.legend(loc='lower right')
+
+	plt.show()
 
 
 
